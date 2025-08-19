@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname)));
 // Rate Limiter: 20 requests per minute per IP
 const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
-    max: 20,
+    max: 5,
     message: { error: 'Too many requests, please try again later or create an account.' },
     standardHeaders: true,
     legacyHeaders: false,
