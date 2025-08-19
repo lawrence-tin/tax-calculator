@@ -83,6 +83,9 @@ document.addEventListener('DOMContentLoaded', function() {
         performCalculation(formData);
     });
 
+    const resultsContainer = document.getElementById('results-container');
+    const signupSection = document.getElementById('signup-section');
+
     async function performCalculation(data) {
         try {
             const response = await fetch('/api/calculate', {
@@ -94,10 +97,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
 
             if (!response.ok) {
-                // Handle rate limiting and other errors
                 if (response.status === 429) {
-                    // This is where you would show a modal prompting signup
-                    alert(result.error); 
+                    resultsContainer.style.display = 'none'; // Hide results
+                    signupSection.style.display = 'block'; // Show signup form
+                    alert(result.error); // Keep alert for now, will be replaced by UI
                 } else {
                     alert(`Error: ${result.error || 'Calculation failed'}`);
                 }
@@ -117,12 +120,58 @@ document.addEventListener('DOMContentLoaded', function() {
                 result.annualTaxableIncome,
                 data.taxYear
             );
+            signupSection.style.display = 'none'; // Hide signup form if calculation is successful
 
         } catch (error) {
             console.error('Calculation error:', error);
             alert('An unexpected error occurred. Please check your connection and try again.');
         }
     }
+
+    // --- Signup Form Handling ---
+    const signupForm = document.getElementById('signup-form');
+    signupForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('signup-username').value;
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match!');
+            return;
+        }
+        if (username.length < 3) {
+            alert('Username must be at least 3 characters long.');
+            return;
+        }
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters long.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message || 'Account created successfully!');
+                signupSection.style.display = 'none'; // Hide signup form on success
+                // Optionally, redirect to login or enable calculations
+            } else {
+                alert(result.error || 'Failed to create account.');
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert('An unexpected error occurred during signup. Please try again.');
+        }
+    });
+
 
     // --- Results Display ---
 

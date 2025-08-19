@@ -178,6 +178,21 @@ app.post('/api/calculate', apiLimiter, (req, res) => {
     }
 });
 
+app.post('/api/signup', (req, res) => {
+    const { username, password } = req.body;
+
+    // In a real application, you would:
+    // 1. Hash the password
+    // 2. Store the username and hashed password in a database
+    // 3. Handle duplicate usernames
+    // 4. Implement proper error handling
+
+    console.log('Signup attempt:', { username, password });
+
+    // For now, just send a success message
+    res.status(200).json({ message: 'Signup successful! (Account not actually created yet)' });
+});
+
 
 // --- Server ---
 
