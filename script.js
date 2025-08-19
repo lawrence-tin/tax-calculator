@@ -3,15 +3,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- UI Interaction Logic ---
 
-    // Tab switching functionality
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
+    // Tab switching functionality (for main calculator tabs)
+    const mainTabs = document.querySelectorAll('.card-header .tabs .tab');
+    const mainTabContents = document.querySelectorAll('.tab-content');
 
-    tabs.forEach(tab => {
+    mainTabs.forEach(tab => {
         tab.addEventListener('click', () => {
             const tabId = tab.getAttribute('data-tab');
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
+            mainTabs.forEach(t => t.classList.remove('active'));
+            mainTabContents.forEach(c => c.classList.remove('active'));
             tab.classList.add('active');
             document.getElementById(`${tabId}-tab`).classList.add('active');
         });
@@ -100,6 +100,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.status === 429) {
                     resultsContainer.style.display = 'none'; // Hide results
                     signupSection.style.display = 'block'; // Show signup form
+                    // Switch to signup tab by default when rate limit hit
+                    switchForm('signup');
                     alert(result.error); // Keep alert for now, will be replaced by UI
                 } else {
                     alert(`Error: ${result.error || 'Calculation failed'}`);
@@ -107,9 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // For backward calculation, the server returns the calculated basic salary
-            // The server now returns all the necessary display values directly
-
             displayResults(
                 result.basic,
                 result.travel,
@@ -120,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 result.annualTaxableIncome,
                 data.taxYear
             );
-            signupSection.style.display = 'none'; // Hide signup form if calculation is successful
+            signupSection.style.display = 'none'; // Hide signup/login form if calculation is successful
 
         } catch (error) {
             console.error('Calculation error:', error);
@@ -128,7 +127,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- Signup Form Handling ---
+    // --- Signup/Login Form Handling ---
+
+    const authTabs = document.querySelectorAll('.signup-section .tabs .tab');
+    const signupFormContent = document.getElementById('signup-form-content');
+    const loginFormContent = document.getElementById('login-form-content');
+
+    function switchForm(formType) {
+        authTabs.forEach(tab => tab.classList.remove('active'));
+        signupFormContent.classList.remove('active');
+        loginFormContent.classList.remove('active');
+
+        if (formType === 'signup') {
+            document.querySelector('.signup-section .tabs .tab[data-form="signup"]').classList.add('active');
+            signupFormContent.classList.add('active');
+        } else if (formType === 'login') {
+            document.querySelector('.signup-section .tabs .tab[data-form="login"]').classList.add('active');
+            loginFormContent.classList.add('active');
+        }
+    }
+
+    authTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const formType = tab.getAttribute('data-form');
+            switchForm(formType);
+        });
+    });
+
     const signupForm = document.getElementById('signup-form');
     signupForm.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -161,14 +186,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.ok) {
                 alert(result.message || 'Account created successfully!');
-                signupSection.style.display = 'none'; // Hide signup form on success
-                // Optionally, redirect to login or enable calculations
+                // Optionally, switch to login form after successful signup
+                switchForm('login');
             } else {
                 alert(result.error || 'Failed to create account.');
             }
         } catch (error) {
             console.error('Signup error:', error);
             alert('An unexpected error occurred during signup. Please try again.');
+        }
+    });
+
+    const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message || 'Login successful!');
+                signupSection.style.display = 'none'; // Hide signup/login form on success
+                // Optionally, enable calculations or redirect
+            } else {
+                alert(result.error || 'Login failed.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('An unexpected error occurred during login. Please try again.');
         }
     });
 

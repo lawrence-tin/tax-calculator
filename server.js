@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs').promises; // For file system operations
 const bcrypt = require('bcrypt'); // For password hashing
+const session = require('express-session'); // For session management
 
 const app = express();
 const port = 3000;
@@ -11,6 +12,14 @@ const port = 3000;
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
+
+// Session Middleware
+app.use(session({
+    secret: 'your_secret_key', // Replace with a strong secret in production
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24 hours
+}));
 
 // Rate Limiter: 20 requests per minute per IP
 const apiLimiter = rateLimit({
@@ -224,6 +233,53 @@ app.post('/api/signup', async (req, res) => {
     } catch (error) {
         console.error('Signup error:', error);
         res.status(500).json({ error: 'Internal server error during signup.' });
+    }
+});
+
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required.' });
+    }
+
+    try {
+        const usersFilePath = path.join(__dirname, 'users.json');
+        let users = [];
+
+        // Read existing users
+        try {
+            const data = await fs.readFile(usersFilePath, 'utf8');
+            users = JSON.parse(data);
+        } catch (readError) {
+            // If file doesn't exist or is empty, no users to check against
+            if (readError.code === 'ENOENT' || readError instanceof SyntaxError) {
+                users = [];
+            } else {
+                console.error('Error reading users.json:', readError);
+                return res.status(500).json({ error: 'Internal server error.' });
+            }
+        }
+
+        // Find user
+        const user = users.find(u => u.username === username);
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid username or password.' });
+        }
+
+        // Compare password
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Invalid username or password.' });
+        }
+
+        // Set session
+        req.session.userId = user.username;
+        res.status(200).json({ message: 'Login successful!' });
+
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'Internal server error during login.' });
     }
 });
 
