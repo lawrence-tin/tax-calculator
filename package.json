@@ -18,6 +18,7 @@
   "homepage": "https://github.com/lawrence-tin/tax-calculator#readme",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1"
   }

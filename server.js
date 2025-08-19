@@ -2,6 +2,8 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const fs = require('fs').promises; // For file system operations
+const bcrypt = require('bcrypt'); // For password hashing
 
 const app = express();
 const port = 3000;
@@ -178,19 +180,51 @@ app.post('/api/calculate', apiLimiter, (req, res) => {
     }
 });
 
-app.post('/api/signup', (req, res) => {
+app.post('/api/signup', async (req, res) => {
     const { username, password } = req.body;
 
-    // In a real application, you would:
-    // 1. Hash the password
-    // 2. Store the username and hashed password in a database
-    // 3. Handle duplicate usernames
-    // 4. Implement proper error handling
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required.' });
+    }
 
-    console.log('Signup attempt:', { username, password });
+    try {
+        const usersFilePath = path.join(__dirname, 'users.json');
+        let users = [];
 
-    // For now, just send a success message
-    res.status(200).json({ message: 'Signup successful! (Account not actually created yet)' });
+        // Read existing users
+        try {
+            const data = await fs.readFile(usersFilePath, 'utf8');
+            users = JSON.parse(data);
+        } catch (readError) {
+            // If file doesn't exist or is empty, start with an empty array
+            if (readError.code === 'ENOENT' || readError instanceof SyntaxError) {
+                users = [];
+            } else {
+                console.error('Error reading users.json:', readError);
+                return res.status(500).json({ error: 'Internal server error.' });
+            }
+        }
+
+        // Check for duplicate username
+        if (users.some(user => user.username === username)) {
+            return res.status(409).json({ error: 'Username already exists.' });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10); // 10 salt rounds
+
+        // Add new user
+        users.push({ username, password: hashedPassword });
+
+        // Write updated users back to file
+        await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf8');
+
+        res.status(201).json({ message: 'Account created successfully!' });
+
+    } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({ error: 'Internal server error during signup.' });
+    }
 });
 
 
