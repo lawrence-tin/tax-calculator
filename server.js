@@ -24,7 +24,14 @@ app.use(session({
 // Rate Limiter: 20 requests per minute per IP
 const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
-    max: 5,
+    max: (req, res) => {
+        // If user is authenticated, allow a very high limit (effectively unlimited)
+        if (req.session.userId) {
+            return 10000; // A very high number
+        }
+        // Otherwise, apply the standard limit
+        return 5;
+    },
     message: { error: 'Too many requests, please try again later or create an account.' },
     standardHeaders: true,
     legacyHeaders: false,
