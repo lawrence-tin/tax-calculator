@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZA Tax Calculator | Forward & Backward Calculation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="ad-banner" id="topBanner">
+        <div class="ad-content">
+            <span class="ad-label">SPONSORED</span>
+            <div class="ad-placeholder">Premium Ad Space - Financial Services</div>
+        </div>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 5L35 30H5L20 5Z" fill="#0DB3A6"/>
+                    <path d="M20 35C28.2843 35 35 28.2843 35 20C35 11.7157 28.2843 5 20 5C11.7157 5 5 11.7157 5 20C5 28.2843 11.7157 35 20 35Z" stroke="#0DB3A6" stroke-width="2"/>
+                </svg>
+                <h1>ZA Tax Calculator</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#calculator">Calculator</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h2>Precise Tax Calculations <span class="highlight">Forward & Backward</span></h2>
+                    <p>Calculate your South African income tax, PAYE, and UIF with our modern calculator. Work forward from gross to net, or backward from take-home to gross salary.</p>
+                </div>
+                <div class="hero-image">
+                    <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M150 50L250 220H50L150 50Z" fill="#0DB3A6" fill-opacity="0.2"/>
+                        <path d="M150 250C194.183 250 230 214.183 230 170C230 125.817 194.183 90 150 90C105.817 90 70 125.817 70 170C70 214.183 105.817 250 150 250Z" fill="#0DB3A6" fill-opacity="0.1"/>
+                        <path d="M120 130H180V190H120V130Z" stroke="#0DB3A6" stroke-width="2"/>
+                        <path d="M135 150H165" stroke="#0DB3A6" stroke-width="2"/>
+                        <path d="M135 170H165" stroke="#0DB3A6" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <section id="calculator" class="calculator">
+            <div class="container">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="tabs">
+                            <button class="tab active" data-tab="forward">Forward Calculation</button>
+                            <button class="tab" data-tab="backward">Backward Calculation</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="tab-content active" id="forward-tab">
+                            <h3>Calculate Tax from Gross Salary</h3>
+                            <form id="forward-form">
+                                <div class="form-group">
+                                    <label for="tax-year">Tax Year</label>
+                                    <select id="tax-year" class="form-control">
+                                        <option value="2026">2026 (Mar 2025 - Feb 2026)</option>
+                                        <option value="2025">2025 (Mar 2024 - Feb 2025)</option>
+                                        <option value="2024">2024 (Mar 2023 - Feb 2024)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="salary-period">Salary Period</label>
+                                    <select id="salary-period" class="form-control">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="biweekly">Every 2 Weeks</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="gross-salary">Basic Salary (R)</label>
+                                    <input type="number" id="gross-salary" class="form-control" placeholder="Enter amount">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="travel-allowance">
+                                        Travel Allowance (R)
+                                        <span class="tooltip" data-tooltip="Only 80% of travel allowance is taxable for PAYE">ⓘ</span>
+                                    </label>
+                                    <input type="number" id="travel-allowance" class="form-control" placeholder="Enter amount (optional)" value="0">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="age">Your Age</label>
+                                    <select id="age" class="form-control">
+                                        <option value="under65">Under 65</option>
+                                        <option value="65to75">65 - 75</option>
+                                        <option value="over75">Over 75</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Calculate</button>
+                            </form>
+                        </div>
+                        
+                        <div class="tab-content" id="backward-tab">
+                            <h3>Calculate Gross Salary from Take-Home Pay</h3>
+                            <form id="backward-form">
+                                <div class="form-group">
+                                    <label for="backward-tax-year">Tax Year</label>
+                                    <select id="backward-tax-year" class="form-control">
+                                        <option value="2026">2026 (Mar 2025 - Feb 2026)</option>
+                                        <option value="2025">2025 (Mar 2024 - Feb 2025)</option>
+                                        <option value="2024">2024 (Mar 2023 - Feb 2024)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="backward-salary-period">Salary Period</label>
+                                    <select id="backward-salary-period" class="form-control">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="biweekly">Every 2 Weeks</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="net-salary">Take-Home Pay (R)</label>
+                                    <input type="number" id="net-salary" class="form-control" placeholder="Enter amount">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="backward-travel-allowance">
+                                        Travel Allowance (R)
+                                        <span class="tooltip" data-tooltip="Only 80% of travel allowance is taxable for PAYE">ⓘ</span>
+                                    </label>
+                                    <input type="number" id="backward-travel-allowance" class="form-control" placeholder="Enter amount (optional)" value="0">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="backward-age">Your Age</label>
+                                    <select id="backward-age" class="form-control">
+                                        <option value="under65">Under 65</option>
+                                        <option value="65to75">65 - 75</option>
+                                        <option value="over75">Over 75</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Calculate</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-container" id="results-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Calculation Results</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="results-summary">
+                                <div class="result-item">
+                                    <span class="result-label">Basic Salary:</span>
+                                    <span class="result-value" id="result-basic">R0.00</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Travel Allowance:</span>
+                                    <span class="result-value" id="result-travel">R0.00</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Gross Salary:</span>
+                                    <span class="result-value" id="result-gross">R0.00</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">PAYE Tax:</span>
+                                    <span class="result-value" id="result-paye">R0.00</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">UIF Contribution:</span>
+                                    <span class="result-value" id="result-uif">R0.00</span>
+                                </div>
+                                <div class="result-item total">
+                                    <span class="result-label">Take-Home Pay:</span>
+                                    <span class="result-value" id="result-net">R0.00</span>
+                                </div>
+                            </div>
+                            
+                            <div class="results-chart-container">
+                                <canvas id="tax-breakdown-chart"></canvas>
+                            </div>
+                            
+                            <div class="tax-bracket-info">
+                                <h4>Your Tax Bracket</h4>
+                                <p id="tax-bracket-text">Based on your annual income, you fall into the <span id="tax-rate">0%</span> tax bracket.</p>
+                                <p class="travel-allowance-note">Note: Only 80% of your travel allowance (R<span id="taxable-travel">0.00</span>) is included in your taxable income for PAYE calculation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="ad-section">
+            <div class="container">
+                <div class="ad-banner horizontal">
+                    <div class="ad-content">
+                        <span class="ad-label">SPONSORED</span>
+                        <div class="ad-placeholder">Premium Horizontal Ad Space - Financial Services</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2>About Our Tax Calculator</h2>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 5C11.7157 5 5 11.7157 5 20C5 28.2843 11.7157 35 20 35C28.2843 35 35 28.2843 35 20C35 11.7157 28.2843 5 20 5Z" stroke="#0DB3A6" stroke-width="2"/>
+                                <path d="M20 12V20L26 26" stroke="#0DB3A6" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Always Up-to-Date</h3>
+                        <p>Our calculator automatically updates with the latest SARS tax tables, ensuring accurate calculations year after year.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 20L17 27L30 14" stroke="#0DB3A6" stroke-width="2"/>
+                                <rect x="5" y="5" width="30" height="30" rx="4" stroke="#0DB3A6" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Accurate Calculations</h3>
+                        <p>Get precise tax calculations based on the official SARS tax brackets, UIF limits, and rebates for your specific situation.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 5L25 15L35 17L28 25L30 35L20 30L10 35L12 25L5 17L15 15L20 5Z" stroke="#0DB3A6" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Backward Calculation</h3>
+                        <p>Unique feature to calculate your required gross salary based on your desired take-home pay, helping with salary negotiations.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq" class="faq">
+            <div class="container">
+                <h2>Frequently Asked Questions</h2>
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What is PAYE tax?
+                            <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>PAYE (Pay As You Earn) is the system used in South Africa to collect income tax from employees. Employers deduct this tax from your salary before paying you, based on your earnings and the current tax tables provided by SARS.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What is UIF and how is it calculated?
+                            <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>UIF (Unemployment Insurance Fund) is a mandatory contribution in South Africa that provides short-term relief to workers when they become unemployed. Both employers and employees contribute 1% of the employee's salary, up to a ceiling of R17,712 per month (as of 2025).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How is travel allowance taxed?
+                            <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>According to SARS regulations, only 80% of your travel allowance is subject to PAYE tax. However, the full amount of the travel allowance is included in your take-home pay. UIF is calculated on the full amount (basic salary + travel allowance).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How accurate is the backward calculation?
+                            <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Our backward calculation uses numerical methods to precisely determine the gross salary required to achieve your desired take-home pay. The calculation accounts for all tax brackets, rebates, UIF contributions, and travel allowance tax benefits, providing results accurate to the cent.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <div class="container">
+                <h2>Need Professional Tax Advice?</h2>
+                <p>Connect with certified tax practitioners who can help optimize your tax situation.</p>
+                <a href="#" class="btn btn-secondary">Connect with Experts</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 5L35 30H5L20 5Z" fill="#0DB3A6"/>
+                        <path d="M20 35C28.2843 35 35 28.2843 35 20C35 11.7157 28.2843 5 20 5C11.7157 5 5 11.7157 5 20C5 28.2843 11.7157 35 20 35Z" stroke="#0DB3A6" stroke-width="2"/>
+                    </svg>
+                    <span>ZA Tax Calculator</span>
+                </div>
+                <p class="disclaimer">This calculator is for informational purposes only. While we strive for accuracy, please consult a tax professional for advice specific to your situation.</p>
+                <p class="copyright">© 2025 ZA Tax Calculator. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
